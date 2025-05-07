@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CS 340: Weather Microservice</title>
+    <script>
+    function sendPOST() {
+      let formData = { course: document.getElementById('course').value };
+      fetch('/weather', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {'Content-Type': 'application/json'},
+      }).then(res => res.json()).then(data => {
+        if ('error' in data) {
+          document.getElementById('content').innerHTML = `<hr><h3>Error</h3><p>${JSON.stringify(data)}</p>`;
+        } else {
+          let meetingDate = new Date(Date.parse(data.nextCourseMeeting));
+          let meetingDateStr = meetingDate.toLocaleString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit'
+          })
+
+          let forecastDate = new Date(Date.parse(data.forecastTime));
+          let forecastDateStr = forecastDate.toLocaleString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit'
+          })        
+
+          document.getElementById('content').innerHTML = `<hr><h3>Weather for the next ${data.course} meeting</h3><ul><li>Next Meeting: ${meetingDateStr}</li><li>Forecast Time: ${forecastDateStr}</li><li>Temperature: ${data.temperature}°F</li><li>Forecast: ${data.shortForecast}</li></ul>`
+        }
+      }).catch(err => {
+        document.getElementById('content').innerHTML = `<hr><h3>Error ${err.name}</h3><p>${err.message}</p>`;
+      })
+    };
+    </script>    
+  </head>
+  <body>
+      <h1>Weather of Your Next Course Meeting</h1>
+      <p>
+        <label>Course: <input type="text" id="course" placeholder="Course Subject and Number"></label>
+        <button onclick="sendPOST();">Get Weather!</button>
+      </p>
+      <div id="content"></div>
+    </div>
+  </body>
+</html>
